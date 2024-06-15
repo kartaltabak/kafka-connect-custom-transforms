@@ -1,0 +1,20 @@
+{
+  "name": "postgre-connector-kafka-sink-TestTable",
+  "config": {
+    "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+    "tasks.max": "1",
+    "topics": "kafka-1.TestDB.dbo.TestTable",
+    "connection.url": "jdbc:postgresql://postgredb:5432/testdb?loggerLevel=OFF",
+    "connection.user": "{{{username}}}",
+    "connection.password": "{{{password}}}",
+    "transforms": "extractTable",
+    "transforms.extractTable.type": "org.apache.kafka.connect.transforms.RegexRouter",
+    "transforms.extractTable.regex": ".*\\.dbo\\.(.*)",
+    "transforms.extractTable.replacement": "usrkafka.$1",
+    "auto.create": "true",
+    "insert.mode": "upsert",
+    "delete.enabled": "true",
+    "pk.fields": "ID",
+    "pk.mode": "record_key"
+  }
+}

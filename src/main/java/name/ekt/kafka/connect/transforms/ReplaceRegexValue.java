@@ -1,4 +1,4 @@
-package name.ekt.connect.transforms;
+package name.ekt.kafka.connect.transforms;
 
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.connect.connector.ConnectRecord;

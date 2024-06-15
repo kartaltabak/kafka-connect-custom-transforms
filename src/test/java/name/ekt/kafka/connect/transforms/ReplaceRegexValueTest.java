@@ -1,7 +1,7 @@
-package name.ekt.connect.transforms;
+package name.ekt.kafka.connect.transforms;
 
+import name.ekt.kafka.connect.transforms.ReplaceRegexValue;
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.KafkaContainer;
