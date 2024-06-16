@@ -1,6 +1,5 @@
 package name.ekt.kafka.connect.transforms.test1;
 
-import com.github.dockerjava.api.command.CreateNetworkCmd;
 import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
@@ -17,7 +16,6 @@ import org.testcontainers.containers.Network;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -26,51 +24,31 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 
+import static name.ekt.kafka.connect.transforms.TestUtils.CONFLUENT_VERSION;
+import static name.ekt.kafka.connect.transforms.TestUtils.createKafkaConnectContainer;
+import static name.ekt.kafka.connect.transforms.TestUtils.getDockerImageName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @Testcontainers
 public class E2ETest {
-    private static final Network network = Network.builder()
-            .createNetworkCmdModifier(createNetworkCmd -> createNetworkCmd.withName("kafka-connect-transforms-test1"))
-            .build();
-    public static final String CONFLUENT_VERSION = "7.5.3";
+    public static final String POSTGRE_IMAGE = "postgres:16.3";
+    private static final Network network = Network.newNetwork();
+    private static final String SQLSERVER_IMAGE = "mcr.microsoft.com/mssql/server:2022-latest";
 
     @Container
-    public KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:" + CONFLUENT_VERSION))
+    public KafkaContainer kafka = new KafkaContainer(getDockerImageName("confluentinc/cp-kafka:" + CONFLUENT_VERSION))
             .withNetwork(network)
             .withNetworkAliases("kafka");
 
     @Container
-    public GenericContainer<?> kafkaConnect = new GenericContainer<>(DockerImageName.parse("confluentinc/cp-kafka-connect:" + CONFLUENT_VERSION))
-            .withExposedPorts(8083)
+    public GenericContainer<?> kafkaConnect = createKafkaConnectContainer()
             .withNetwork(network)
             .withNetworkAliases("kafka-connect")
-            .dependsOn(kafka)
-            .withEnv("CONNECT_BOOTSTRAP_SERVERS", "PLAINTEXT://kafka:9092")
-            .withEnv("CONNECT_REST_PORT", "8083")
-            .withEnv("CONNECT_GROUP_ID", "kafka-connect")
-            .withEnv("CONNECT_CONFIG_STORAGE_TOPIC", "connect-configs")
-            .withEnv("CONNECT_OFFSET_STORAGE_TOPIC", "connect-offsets")
-            .withEnv("CONNECT_STATUS_STORAGE_TOPIC", "connect-statuses")
-            .withEnv("CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR", "1")
-            .withEnv("CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR", "1")
-            .withEnv("CONNECT_STATUS_STORAGE_REPLICATION_FACTOR", "1")
-            .withEnv("CONNECT_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
-            .withEnv("CONNECT_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
-            .withEnv("CONNECT_INTERNAL_KEY_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
-            .withEnv("CONNECT_INTERNAL_VALUE_CONVERTER", "org.apache.kafka.connect.json.JsonConverter")
-            .withEnv("CONNECT_PLUGIN_PATH", "/usr/share/java,/usr/share/confluent-hub-components")
-            .withEnv("CONNECT_REST_ADVERTISED_HOST_NAME", "localhost")
-            .withCommand("sh", "-c",
-                    "confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest && " +
-                            "confluent-hub install --no-prompt debezium/debezium-connector-sqlserver:latest && " +
-                            "/etc/confluent/docker/run");
-
+            .dependsOn(kafka);
 
     @Container
-    public MSSQLServerContainer<?> sqlServer = new MSSQLServerContainer<>(DockerImageName.parse("mcr.microsoft.com/mssql/server:2022-latest"))
+    public MSSQLServerContainer<?> sqlServer = new MSSQLServerContainer<>(getDockerImageName(SQLSERVER_IMAGE))
             .acceptLicense()
             .withInitScript("test1/sqlserver-init.sql")
             .withNetwork(network)
@@ -78,7 +56,7 @@ public class E2ETest {
 
 
     @Container
-    public PostgreSQLContainer<?> postgreSQL = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16.3"))
+    public PostgreSQLContainer<?> postgreSQL = new PostgreSQLContainer<>(getDockerImageName(POSTGRE_IMAGE))
             .withDatabaseName("testdb")
             .withNetwork(network)
             .withNetworkAliases("postgredb")
@@ -90,7 +68,6 @@ public class E2ETest {
     private static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
 
     private final MustacheFactory mf = new DefaultMustacheFactory();
-
 
     private void createConnector(String templatePath, Map<String, Object> context) throws IOException {
         Mustache mustache = mf.compile(templatePath);
@@ -109,8 +86,6 @@ public class E2ETest {
             if (!response.isSuccessful()) {
                 throw new RuntimeException("Failed to create connector: " + response.body().string());
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 
