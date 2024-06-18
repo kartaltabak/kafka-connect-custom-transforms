@@ -1,5 +1,9 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     java
+    kotlin("jvm") version "2.0.0"
 }
 
 group = "name.tabak.kafka.connect"
@@ -22,6 +26,7 @@ val postgresqlJdbcVersion = "42.7.3"
 dependencies {
     implementation("org.apache.kafka:connect-api:$kafkaConnectVersion")
     implementation("org.apache.kafka:connect-transforms:$kafkaConnectVersion")
+    implementation("org.slf4j:slf4j-api:1.7.30")
     testImplementation("com.microsoft.sqlserver:mssql-jdbc:$mssqlJdbcVersion")
     testImplementation("org.postgresql:postgresql:$postgresqlJdbcVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
@@ -35,7 +40,57 @@ dependencies {
     testImplementation("com.github.spullara.mustache.java:compiler:0.9.13")
 }
 
+sourceSets {
+    main {
+        java {
+            setSrcDirs(listOf("src/main/java", "src/main/kotlin"))
+        }
+    }
+    test {
+        java {
+            setSrcDirs(listOf("src/test/java", "src/test/kotlin"))
+        }
+    }
+}
+
+tasks.withType<KotlinCompile> {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_11)
+    }
+}
+
+tasks.withType<JavaCompile> {
+    sourceCompatibility = "11"
+    targetCompatibility = "11"
+}
+
 tasks.test {
     useJUnitPlatform()
 }
 
+val createManifest by tasks.creating(Copy::class) {
+    from("manifest.json")
+    into("$buildDir/component_archive/")
+}
+
+val createLibs by tasks.creating(Copy::class) {
+    from(tasks.jar)
+    into("$buildDir/component_archive/lib")
+}
+
+val copyDependencies by tasks.creating(Copy::class) {
+    from(
+        configurations.runtimeClasspath.get().filter { !it.isDirectory })
+    into("$buildDir/component_archive/lib")
+}
+
+val createComponentArchive by tasks.creating(Zip::class) {
+    dependsOn(createManifest, createLibs)
+    archiveFileName.set("kafka-connect-common-transforms.zip")
+    destinationDirectory.set(file("$buildDir"))
+    from("$buildDir/component_archive/")
+}
+
+tasks.build {
+    dependsOn(createComponentArchive)
+}

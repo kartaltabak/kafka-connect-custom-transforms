@@ -1,0 +1,33 @@
+{
+  "component_types": [
+    "transform"
+  ],
+
+  "description": "This library provides a couple of common transformers.",
+
+  "features": {
+    "delivery_guarantee": [],
+    "kafka_connect_api": true,
+    "single_message_transforms": true,
+    "supported_encodings": ["any"]
+  },
+
+  "license": [
+    {
+      "name": "Apache License, Version 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  ],
+
+  "name": "kafka-connect-custom-transforms",
+
+  "owner": {
+    "username": "kartaltabak",
+    "type": "user",
+    "name": "Kartal Tabak"
+  },
+
+  "title": "Kafka Connect Custom Transforms",
+
+  "version": "1.0.0"
+}
