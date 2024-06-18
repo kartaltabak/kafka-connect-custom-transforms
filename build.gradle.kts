@@ -4,10 +4,11 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     kotlin("jvm") version "2.0.0"
+    `maven-publish`
 }
 
 group = "name.tabak.kafka.connect"
-version = "1.0-SNAPSHOT"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -26,7 +27,7 @@ val postgresqlJdbcVersion = "42.7.3"
 dependencies {
     implementation("org.apache.kafka:connect-api:$kafkaConnectVersion")
     implementation("org.apache.kafka:connect-transforms:$kafkaConnectVersion")
-    implementation("org.slf4j:slf4j-api:1.7.30")
+    implementation("org.slf4j:slf4j-api:2.0.12")
     testImplementation("com.microsoft.sqlserver:mssql-jdbc:$mssqlJdbcVersion")
     testImplementation("org.postgresql:postgresql:$postgresqlJdbcVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-api:$junitVersion")
@@ -94,3 +95,25 @@ val createComponentArchive by tasks.creating(Zip::class) {
 tasks.build {
     dependsOn(createComponentArchive)
 }
+
+tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(sourceSets.main.get().allSource)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+
+            artifact(tasks.getByName("sourcesJar"))
+        }
+    }
+    repositories {
+        maven {
+            name = "local"
+            url = uri(findProperty("altDeploymentRepository") ?: "file://${System.getProperty("user.home")}/.m2/repository")
+        }
+    }}
+
+
