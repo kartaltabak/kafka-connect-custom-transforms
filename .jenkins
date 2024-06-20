@@ -19,7 +19,13 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh './gradlew clean build publish -DaltDeploymentRepository=file:///var/shared/maven-dir --no-daemon --debug'
+                sh 'GRADLE_OPTS="-XX:MaxMetaspaceSize=384m ' +
+                        '-XX:+HeapDumpOnOutOfMemoryError ' +
+                        '-Xms256m -Xmx512m" ' +
+                        './gradlew clean build publish ' +
+                        '-DaltDeploymentRepository=file:///var/shared/maven-dir ' +
+                        '--no-daemon ' +
+                        '--debug'
             }
             post {
                 always {
