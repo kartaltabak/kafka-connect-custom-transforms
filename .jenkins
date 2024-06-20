@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'kartaltabak/jdk-with-docker:jdk11-maven'
+            image 'kartaltabak/jdk-with-docker:jdk11'
             args '-v /var/lib/jenkins/tools:/var/lib/jenkins/tools ' +
                     '-v /var/lib/jenkins/repositoryPlugin:/var/lib/jenkins/repositoryPlugin ' +
                     '-v maven-dir:/var/shared/maven-dir ' +
