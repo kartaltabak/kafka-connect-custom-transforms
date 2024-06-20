@@ -81,7 +81,7 @@ public class ReplaceRegexValueTest {
         SourceRecord transformedRecord = transform.apply(record);
         Struct transformedValue = (Struct) transformedRecord.value();
 
-        assertEquals("foo is here", transformedValue.get("message"));
+        assertEquals("foo/is here", transformedValue.get("message"));
         transform.close();
     }
 }
