@@ -24,8 +24,7 @@ pipeline {
                         '-Xms256m -Xmx512m" ' +
                         './gradlew clean build publish ' +
                         '-DaltDeploymentRepository=file:///var/shared/maven-dir ' +
-                        '--no-daemon ' +
-                        '--debug'
+                        '--no-daemon'
             }
             post {
                 always {
