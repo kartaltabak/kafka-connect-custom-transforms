@@ -112,7 +112,9 @@ publishing {
     repositories {
         maven {
             name = "local"
-            url = uri(findProperty("altDeploymentRepository") ?: "file://${System.getProperty("user.home")}/.m2/repository")
+            val altDeploymentRepository = findProperty("altDeploymentRepository")
+            print("altDeploymentRepository: $altDeploymentRepository")
+            url = uri(altDeploymentRepository ?: "file://${System.getProperty("user.home")}/.m2/repository")
         }
     }
 }
