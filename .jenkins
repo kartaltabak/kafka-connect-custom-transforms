@@ -19,7 +19,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh './gradlew clean build publish -DaltDeploymentRepository=file:///var/shared/maven-dir --no-daemon'
+                sh './gradlew clean build publish -DaltDeploymentRepository=file:///var/shared/maven-dir --no-daemon --debug'
             }
             post {
                 always {

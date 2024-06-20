@@ -114,6 +114,7 @@ publishing {
             name = "local"
             url = uri(findProperty("altDeploymentRepository") ?: "file://${System.getProperty("user.home")}/.m2/repository")
         }
-    }}
+    }
+}
 
 
