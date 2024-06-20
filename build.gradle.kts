@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.lang.System.getProperty
 
 plugins {
     java
@@ -112,11 +113,7 @@ publishing {
     repositories {
         maven {
             name = "local"
-            val altDeploymentRepository = findProperty("altDeploymentRepository")
-            print("altDeploymentRepository: $altDeploymentRepository")
-            val altDeploymentRepository2 = System.getProperty("altDeploymentRepository")
-            print("altDeploymentRepository2: $altDeploymentRepository2")
-            url = uri(altDeploymentRepository ?: "file://${System.getProperty("user.home")}/.m2/repository")
+            url = uri(getProperty("altDeploymentRepository") ?: "file://${getProperty("user.home")}/.m2/repository")
         }
     }
 }
