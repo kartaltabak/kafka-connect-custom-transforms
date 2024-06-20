@@ -16,22 +16,20 @@ pipeline {
     triggers {
         snapshotDependencies()
     }
-
     stages {
         stage('Build') {
             steps {
                 sh './gradlew clean build publish -DaltDeploymentRepository=file:///var/shared/maven-dir'
             }
-        }
-    }
+            post {
+                always {
+                    // Archive the build artifacts if needed
+                    archiveArtifacts artifacts: '**/build/libs/*.jar', allowEmptyArchive: true
 
-    post {
-        always {
-            // Archive the build artifacts if needed
-            archiveArtifacts artifacts: '**/build/libs/*.jar', allowEmptyArchive: true
-
-            // Publish test results (if any)
-            junit '**/build/test-results/test/*.xml'
+                    // Publish test results (if any)
+                    junit '**/build/test-results/test/*.xml'
+                }
+            }
         }
     }
 }
