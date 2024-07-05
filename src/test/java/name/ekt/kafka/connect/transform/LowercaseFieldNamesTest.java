@@ -6,7 +6,6 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.source.SourceRecord;
 import org.apache.kafka.connect.transforms.Transformation;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,7 +14,6 @@ import static org.apache.kafka.connect.data.Schema.INT32_SCHEMA;
 import static org.apache.kafka.connect.data.Schema.STRING_SCHEMA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@Testcontainers
 public class LowercaseFieldNamesTest {
 
     @Test
