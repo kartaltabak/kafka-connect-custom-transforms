@@ -32,6 +32,6 @@ jobs:
           path: build/libs/*.jar
 
       - uses: ncipollo/release-action@v1
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           artifacts: "build/libs/*.jar"
