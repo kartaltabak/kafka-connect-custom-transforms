@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
@@ -29,5 +32,6 @@ jobs:
           path: build/libs/*.jar
 
       - uses: ncipollo/release-action@v1
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
           artifacts: "build/libs/*.jar"
