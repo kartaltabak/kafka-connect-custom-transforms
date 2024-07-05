@@ -51,5 +51,5 @@ abstract class ProcessFieldNames<R : ConnectRecord<R>>(
     override fun config(): ConfigDef = ConfigDef()
 
     override fun close() = Unit
-    override fun configure(configs: Map<String?, *>?) = Unit
+    override fun configure(configs: Map<String, *>?) = Unit
 }
