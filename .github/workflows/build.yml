@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   build:
@@ -30,3 +27,7 @@ jobs:
         with:
           name: kafka-connect-custom-transforms
           path: build/libs/*.jar
+
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "build/libs/*.jar"
