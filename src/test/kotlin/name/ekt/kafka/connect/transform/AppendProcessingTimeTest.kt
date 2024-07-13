@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.lang.System.currentTimeMillis
+import java.util.*
 
 class AppendProcessingTimeTest {
     @Test
@@ -47,9 +48,9 @@ class AppendProcessingTimeTest {
             Thread.sleep(2);
             val ms2 = currentTimeMillis()
 
-
-            assertTrue(ms1 < transformedValue["processed_time"] as Long)
-            assertTrue(ms2 > transformedValue["processed_time"] as Long)
+            val processedTime = (transformedValue["processed_time"] as Date).time
+            assertTrue(ms1 < processedTime)
+            assertTrue(ms2 > processedTime)
         }
     }
 }
