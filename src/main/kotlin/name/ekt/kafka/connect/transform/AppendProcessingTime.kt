@@ -6,13 +6,12 @@ import org.apache.kafka.common.config.ConfigDef.Type.BOOLEAN
 import org.apache.kafka.common.config.ConfigDef.Type.STRING
 import org.apache.kafka.connect.connector.ConnectRecord
 import org.apache.kafka.connect.data.Schema
-import org.apache.kafka.connect.data.Schema.INT64_SCHEMA
-import org.apache.kafka.connect.data.Schema.OPTIONAL_INT64_SCHEMA
 import org.apache.kafka.connect.data.SchemaBuilder
 import org.apache.kafka.connect.data.Struct
+import org.apache.kafka.connect.data.Timestamp
 import org.apache.kafka.connect.transforms.Transformation
 import org.apache.kafka.connect.transforms.util.SimpleConfig
-import java.lang.System.currentTimeMillis
+import java.util.*
 
 
 class AppendProcessingTime<R : ConnectRecord<R>>
@@ -24,7 +23,6 @@ class AppendProcessingTime<R : ConnectRecord<R>>
             const val IS_OPTIONAL_NAME = "is_optional"
         }
     }
-
 
     val CONFIG_DEF = ConfigDef()
         .define(
@@ -49,7 +47,7 @@ class AppendProcessingTime<R : ConnectRecord<R>>
         val config = SimpleConfig(CONFIG_DEF, configs)
         fieldName = config.getString(ConfigName.FIELD_NAME)
         isOptional = config.getBoolean(ConfigName.IS_OPTIONAL_NAME) ?: true
-        timestampSchema = if (isOptional) OPTIONAL_INT64_SCHEMA else INT64_SCHEMA
+        timestampSchema = if (isOptional) Timestamp.builder().optional().schema() else Timestamp.SCHEMA
     }
 
     override fun close() = Unit
@@ -68,7 +66,7 @@ class AppendProcessingTime<R : ConnectRecord<R>>
                         }
                     }
                     .also {
-                        it.put(fieldName, currentTimeMillis())
+                        it.put(fieldName, Date())
                     }
                 record.newRecord(
                     record.topic(), record.kafkaPartition(),
