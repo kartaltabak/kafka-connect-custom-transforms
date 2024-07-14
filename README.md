@@ -23,14 +23,16 @@ It appends a new field to the record's value schema, which contains the timestam
 
 #### Configuration
 
-- `field.name` (default: `processing_time`): The name of the field to store the processing timestamp.
+- `field` (default: `processing_time`): The name of the field to store the processing timestamp.
+- `is_optional` (default: `true`): The name of the field to store the processing timestamp.
 
 #### Example
 
 ```json
 "transforms": "AppendProcessingTime",
 "transforms.AppendProcessingTime.type": "name.ekt.kafka.connect.transform.AppendProcessingTime",
-"transforms.AppendProcessingTime.field.name": "processing_time"
+"transforms.AppendProcessingTime.field": "processing_time"
+"transforms.AppendProcessingTime.is_optional": true
 ```
 
 ### LowercaseFieldNames
