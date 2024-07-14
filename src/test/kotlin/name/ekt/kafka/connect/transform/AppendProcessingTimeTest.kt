@@ -15,7 +15,7 @@ class AppendProcessingTimeTest {
     fun testReplaceRegexValueTransformationNull() {
         AppendProcessingTime<SourceRecord>()
             .also {
-                it.configure(mapOf("field.name" to "processed_time"))
+                it.configure(mapOf("field" to "processed_time"))
             }
             .use { transform ->
             val keySchema = SchemaBuilder.struct().name("EntityKey")
@@ -51,5 +51,41 @@ class AppendProcessingTimeTest {
             assertTrue(ms1 < transformedValue["processed_time"] as Long)
             assertTrue(ms2 > transformedValue["processed_time"] as Long)
         }
+    }
+
+    @Test
+    fun `new field should be optional`() {
+        AppendProcessingTime<SourceRecord>()
+            .also {
+                it.configure(mapOf("field" to "processed_time"))
+            }
+            .use { transform ->
+                val keySchema = SchemaBuilder.struct().name("EntityKey")
+                    .field("ID", INT32_SCHEMA)
+                    .build()
+                val key = Struct(keySchema)
+                    .put("ID", 10)
+                val valueSchema = SchemaBuilder.struct().name("Entity")
+                    .field("ID", INT32_SCHEMA)
+                    .field("Message", STRING_SCHEMA)
+                    .build()
+                val value = Struct(valueSchema)
+                    .put("ID", 10)
+                    .put("Message", "foo")
+                val record = SourceRecord(
+                    null,
+                    null,
+                    "my_topic",
+                    0,
+                    keySchema,
+                    key,
+                    valueSchema,
+                    value
+                )
+
+                val transformedRecord = transform.apply(record)
+
+                assertTrue(transformedRecord.valueSchema().field("processed_time").schema().isOptional)
+            }
     }
 }
