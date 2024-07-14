@@ -11,7 +11,7 @@ import org.apache.kafka.connect.data.Struct
 import org.apache.kafka.connect.data.Timestamp
 import org.apache.kafka.connect.transforms.Transformation
 import org.apache.kafka.connect.transforms.util.SimpleConfig
-import java.util.*
+import java.util.Date
 
 
 class AppendProcessingTime<R : ConnectRecord<R>>
