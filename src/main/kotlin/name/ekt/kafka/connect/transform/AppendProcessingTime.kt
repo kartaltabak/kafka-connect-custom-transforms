@@ -7,12 +7,9 @@ import org.apache.kafka.connect.connector.ConnectRecord
 import org.apache.kafka.connect.data.Schema
 import org.apache.kafka.connect.data.SchemaBuilder
 import org.apache.kafka.connect.data.Struct
-import org.apache.kafka.connect.data.Timestamp
 import org.apache.kafka.connect.transforms.Transformation
 import org.apache.kafka.connect.transforms.util.SimpleConfig
 import java.lang.System.currentTimeMillis
-import java.time.LocalDateTime
-import java.util.*
 
 
 class AppendProcessingTime<R : ConnectRecord<R>>
@@ -56,7 +53,7 @@ class AppendProcessingTime<R : ConnectRecord<R>>
                         }
                     }
                     .also {
-                        it.put(fieldName, Date())
+                        it.put(fieldName, currentTimeMillis())
                     }
                 record.newRecord(
                     record.topic(), record.kafkaPartition(),
@@ -77,7 +74,7 @@ class AppendProcessingTime<R : ConnectRecord<R>>
                 }
             }
             .also {
-                it.field(fieldName, Timestamp.SCHEMA)
+                it.field(fieldName, Schema.INT64_SCHEMA)
             }
             .build()
 }
