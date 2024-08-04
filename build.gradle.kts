@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "name.tabak.kafka.connect"
-version = "1.2"
+version = "1.3-beta-2"
 
 repositories {
     mavenCentral()
@@ -23,6 +23,8 @@ val junitVersion = "5.10.2"
 dependencies {
     implementation("org.apache.kafka:connect-transforms:$kafkaConnectVersion")
     implementation("org.slf4j:slf4j-api:2.0.12")
+    implementation("io.debezium:debezium-api:2.7.0.Final")
+
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
