@@ -11,6 +11,7 @@ The available transformations include:
 - `TableToLowerCase`
 - `TableToUpperCase`
 - `UppercaseFieldNames`
+- `RenameFieldNamesRegEx`
 
 ## Transformations
 
@@ -31,7 +32,7 @@ It appends a new field to the record's value schema, which contains the timestam
 ```json
 "transforms": "AppendProcessingTime",
 "transforms.AppendProcessingTime.type": "name.ekt.kafka.connect.transform.AppendProcessingTime",
-"transforms.AppendProcessingTime.field": "processing_time"
+"transforms.AppendProcessingTime.field": "processing_time",
 "transforms.AppendProcessingTime.is_optional": true
 ```
 
@@ -129,6 +130,27 @@ due to discrepancies in field name casing.
 ```json
 "transforms": "UppercaseFieldNames",
 "transforms.UppercaseFieldNames.type": "name.ekt.kafka.connect.transform.UppercaseFieldNames"
+```
+
+### RenameFieldNamesRegEx
+
+Transforms field names in Kafka Connect records by applying a regular expression pattern 
+and replacing matching parts of the field names with a specified replacement string. 
+This transformation is useful for renaming fields to follow specific conventions 
+or to remove unwanted characters.
+
+#### Configuration
+
+- `regex`: The regular expression to be applied to field names.
+- `replacement`: The string to replace the regex matches with.
+
+#### Example
+
+```json
+"transforms": "RenameFieldNamesRegEx",
+"transforms.RenameFieldNamesRegEx.type": "name.ekt.kafka.connect.transform.RenameFieldNamesRegEx",
+"transforms.RenameFieldNamesRegEx.regex": "\\",
+"transforms.RenameFieldNamesRegEx.replacement": "_"
 ```
 
 ## Usage

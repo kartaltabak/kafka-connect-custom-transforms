@@ -7,9 +7,7 @@ import org.apache.kafka.connect.data.SchemaBuilder
 import org.apache.kafka.connect.data.Struct
 import org.apache.kafka.connect.transforms.Transformation
 
-abstract class ProcessFieldNames<R : ConnectRecord<R>>(
-    private val transformFunc: (String) -> String
-) : Transformation<R> {
+abstract class ProcessFieldNames<R : ConnectRecord<R>> : Transformation<R> {
     override fun apply(record: R?): R? =
         record?.let {
             val newKeySchema = makeLowercaseSchema(it.keySchema())
@@ -29,7 +27,7 @@ abstract class ProcessFieldNames<R : ConnectRecord<R>>(
             SchemaBuilder.struct()
                 .also {
                     schema.fields().forEach { field ->
-                        it.field(transformFunc(field.name()), field.schema())
+                        it.field(transformFieldName(field.name()), field.schema())
                     }
                 }.build()
         }
@@ -40,7 +38,7 @@ abstract class ProcessFieldNames<R : ConnectRecord<R>>(
                 Struct(newSchema)
                     .also {
                         data.schema().fields().forEach { field ->
-                            it.put(transformFunc(field.name()), data[field])
+                            it.put(transformFieldName(field.name()), data[field])
                         }
                     }
             }
@@ -52,4 +50,6 @@ abstract class ProcessFieldNames<R : ConnectRecord<R>>(
 
     override fun close() = Unit
     override fun configure(configs: Map<String, *>?) = Unit
+
+    abstract fun transformFieldName(fieldName: String): String
 }
