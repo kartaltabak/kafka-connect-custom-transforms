@@ -28,15 +28,17 @@ class TimeShift<R : ConnectRecord<R>> : Transformation<R> {
         hoursShift = config.getLong(HOURS_CONFIG)
     }
 
-    override fun apply(record: R): R {
-        if (record.value() is Struct) {
+    override fun apply(record: R): R =
+        if (record.value() !is Struct) {
+            record
+        } else {
             val valueStruct = record.value() as Struct
             val schema = record.valueSchema()
 
-            schema.field(fieldName)?.let {field ->
+            schema.field(fieldName)?.let { field ->
                 val dateField = valueStruct.get(field) as? Date
 
-                dateField?.let {date ->
+                dateField?.let { date ->
                     date.toInstant()
                         .atZone(ZoneOffset.UTC)
                         .plusHours(hoursShift)
@@ -48,7 +50,7 @@ class TimeShift<R : ConnectRecord<R>> : Transformation<R> {
                 }
             }
 
-            return record.newRecord(
+            record.newRecord(
                 record.topic(),
                 record.kafkaPartition(),
                 record.keySchema(),
@@ -59,12 +61,7 @@ class TimeShift<R : ConnectRecord<R>> : Transformation<R> {
             )
         }
 
-        return record
-    }
-
-    override fun close() {
-        // Clean up resources if needed
-    }
+    override fun close() = Unit
 
     override fun config(): ConfigDef = CONFIG_DEF
 }
