@@ -12,6 +12,8 @@ The available transformations include:
 - `TableToUpperCase`
 - `UppercaseFieldNames`
 - `RenameFieldNamesRegEx`
+-  `TimeShift`
+
 
 ## Transformations
 
@@ -153,6 +155,24 @@ or to remove unwanted characters.
 "transforms.RenameFieldNamesRegEx.replacement": "_"
 ```
 
+### TimeShift
+
+Shifts the date and time of a specified field by a given number of hours. This transformation is useful when you need to adjust the time zone or apply a time offset to a date field in your Kafka records.
+
+#### Configuration
+
+- `field`: The name of the date field to be shifted. This field must be of type `TIMESTAMP`.
+- `hours`: The number of hours to shift the field. Positive values move the time forward, and negative values move it backward.
+
+#### Example
+
+```json
+"transforms": "TimeShift",
+"transforms.TimeShift.type": "name.ekt.kafka.connect.transform.TimeShift",
+"transforms.TimeShift.field": "myDateField",
+"transforms.TimeShift.hours": 5
+```        
+        
 ## Usage
 
 To use the custom transformations in your Kafka Connect setup, follow these steps:
