@@ -17,12 +17,16 @@ class RemoveNullCharacters<R : ConnectRecord<R>?> : Transformation<R> {
         val value = record!!.value()
         if (value is Struct) {
             for (field in value.schema().fields()) {
-                if (field.schema().type().equals(Schema.Type.STRING)) {
-                    val stringValue = value[field] as String
-                    if (stringValue.contains('\u0000')) {
-                        val newValue = regexPattern.matcher(stringValue).replaceAll("")
-                        value.put(field, newValue)
-                    }
+                if (!field.schema().type().equals(Schema.Type.STRING)) {
+                    continue
+                }
+                if (value[field] == null) {
+                    continue
+                }
+                val stringValue = value[field] as String
+                if (stringValue.contains('\u0000')) {
+                    val newValue = regexPattern.matcher(stringValue).replaceAll("")
+                    value.put(field, newValue)
                 }
             }
         }

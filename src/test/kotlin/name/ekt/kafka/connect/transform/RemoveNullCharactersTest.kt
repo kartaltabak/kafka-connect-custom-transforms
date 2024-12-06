@@ -57,4 +57,28 @@ class RemoveNullCharactersTest {
             assertEquals("fooishere", transformedValue["message"])
         }
     }
+
+    @Test
+    fun `when string field is optional the remove null characters should work on null string`() {
+        RemoveNullCharacters<SourceRecord>().use { transform ->
+            val schema = SchemaBuilder.struct().name("Entity")
+                .field("id", INT32_SCHEMA)
+                .field("message", OPTIONAL_STRING_SCHEMA)
+                .build()
+            val value = Struct(schema)
+                .put("id", 10)
+                .put("message", null)
+            val record = SourceRecord(
+                null,
+                null,
+                "my_topic",
+                0,
+                schema,
+                value
+            )
+            val transformedRecord = transform.apply(record)
+            val transformedValue = transformedRecord.value() as Struct
+            assertEquals(null, transformedValue["message"])
+        }
+    }
 }
