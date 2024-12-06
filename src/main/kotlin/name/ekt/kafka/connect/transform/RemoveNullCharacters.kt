@@ -7,6 +7,7 @@ import org.apache.kafka.connect.data.Struct
 import org.apache.kafka.connect.transforms.Transformation
 import java.util.regex.Pattern
 
+
 class RemoveNullCharacters<R : ConnectRecord<R>?> : Transformation<R> {
     override fun configure(props: Map<String?, *>?) = Unit
 
@@ -16,7 +17,7 @@ class RemoveNullCharacters<R : ConnectRecord<R>?> : Transformation<R> {
         val value = record!!.value()
         if (value is Struct) {
             for (field in value.schema().fields()) {
-                if (field.schema().equals(Schema.STRING_SCHEMA)) {
+                if (field.schema().type().equals(Schema.Type.STRING)) {
                     val stringValue = value[field] as String
                     if (stringValue.contains('\u0000')) {
                         val newValue = regexPattern.matcher(stringValue).replaceAll("")
