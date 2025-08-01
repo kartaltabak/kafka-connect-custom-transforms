@@ -68,6 +68,12 @@ tasks.register<Zip>("distWithDeps") {
 
     from(tasks.named("jar"))
     from(configurations.runtimeClasspath.get())
+    from("licenses") {
+        into("licenses")
+    }
+    from("LICENSE") {
+        into("licenses")
+    }
 }
 
 tasks.test {
