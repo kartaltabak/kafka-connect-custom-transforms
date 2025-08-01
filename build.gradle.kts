@@ -4,11 +4,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     java
     kotlin("jvm") version "2.0.0"
-    `maven-publish`
 }
 
 group = "name.tabak.kafka.connect"
-version = "1.6"
+version = "1.6-pre1"
 
 repositories {
     mavenCentral()
@@ -21,13 +20,13 @@ repositories {
 }
 
 val kafkaConnectVersion = "7.5.3-ccs"
-val junitVersion = "5.10.2"
+val junitVersion = "5.11.2"
 val slf4jVersion = "2.0.12"
 val jtsCoreVersion = "1.20.0"
 
 dependencies {
-    implementation("org.apache.kafka:connect-transforms:$kafkaConnectVersion")
-    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+    compileOnly("org.apache.kafka:connect-transforms:$kafkaConnectVersion")
+    compileOnly("org.slf4j:slf4j-api:$slf4jVersion")
     implementation("org.locationtech.jts:jts-core:$jtsCoreVersion")
     
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
@@ -46,6 +45,10 @@ sourceSets {
     }
 }
 
+tasks.withType<Test> {
+    dependsOn(tasks.named("jar"))
+}
+
 tasks.withType<KotlinCompile> {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_11)
@@ -55,6 +58,19 @@ tasks.withType<KotlinCompile> {
 tasks.withType<JavaCompile> {
     sourceCompatibility = "11"
     targetCompatibility = "11"
+}
+
+tasks.register<Zip>("distWithDeps") {
+    archiveBaseName.set("kafka-connect-custom-transforms")
+    archiveClassifier.set("with-deps")
+    destinationDirectory.set(layout.buildDirectory.dir("distributions"))
+
+    from(tasks.named("jar")) {
+        into("lib")
+    }
+    from(configurations.runtimeClasspath.get()) {
+        into("lib")
+    }
 }
 
 tasks.test {
