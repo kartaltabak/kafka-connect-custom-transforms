@@ -12,7 +12,6 @@ import org.apache.kafka.connect.transforms.Transformation
 import org.apache.kafka.connect.transforms.util.SimpleConfig
 import org.locationtech.jts.io.WKBWriter
 import org.locationtech.jts.io.WKTReader
-import org.slf4j.LoggerFactory
 
 class WktToPostgresGeometry<R : ConnectRecord<R>?> : Transformation<R> {
     private interface ConfigName {
@@ -22,33 +21,29 @@ class WktToPostgresGeometry<R : ConnectRecord<R>?> : Transformation<R> {
         }
     }
 
-    private val logger = LoggerFactory.getLogger(WktToPostgresGeometry::class.java)
-    private val wktReader = WKTReader()
-
     private lateinit var field: String
-    private var srid: Int = 4326 // Default to WGS84
-    private val wkbWriter = WKBWriter(2, true)
+    private var srid: Int = 0
 
+    private val wktReader = WKTReader()
+    private val wkbWriter = WKBWriter(2, true)
 
     override fun configure(props: Map<String?, *>?) {
         val config = SimpleConfig(CONFIG_DEF, props)
         field = config.getString(FIELD)
         srid = config.getInt(SRID)
-        logger.info("Configured with field: {}, SRID: {}", field, srid)
     }
 
-    private fun copySchemaWithFieldOverride(
-        original: Schema,
-        overrideFieldName: String,
-        overrideSchema: Schema
-    ): Schema {
-        val builder = SchemaBuilder.struct().name(original.name()).version(original.version())
-        for (field in original.fields()) {
-            val schema = if (field.name() == overrideFieldName) overrideSchema else field.schema()
-            builder.field(field.name(), schema)
-        }
-        return builder.build()
-    }
+    private fun copySchemaWithFieldByteArrayOverride(original: Schema): Schema =
+        SchemaBuilder.struct()
+            .name(original.name())
+            .version(original.version())
+            .also {
+                original.fields().forEach { schemaField ->
+                    val schema = if (schemaField.name() == field) BYTES_SCHEMA else schemaField.schema()
+                    it.field(schemaField.name(), schema)
+                }
+            }
+            .build()
 
     override fun apply(record: R): R {
         val value = record!!.value()
@@ -61,22 +56,15 @@ class WktToPostgresGeometry<R : ConnectRecord<R>?> : Transformation<R> {
             return record // nothing to change
         }
 
+        val newValueSchema = copySchemaWithFieldByteArrayOverride(valueSchema)
+
         val wkbValue = convertWktToPostgresGeometry(wktValue, srid)
-        logger.debug("Converted WKT to WKB for field: {}", field)
-
-        // Create new schema with only one field overridden
-        val newSchema = copySchemaWithFieldOverride(
-            valueSchema,
-            field,
-            BYTES_SCHEMA
-        )
-
-        val newStruct = copyValueWithOverwrite(newSchema, valueSchema, wkbValue, value)
+        val newValue = copyValueWithOverwrite(newValueSchema, valueSchema, wkbValue, value)
 
         return record.newRecord(
             record.topic(), record.kafkaPartition(),
             record.keySchema(), record.key(),
-            newSchema, newStruct,
+            newValueSchema, newValue,
             record.timestamp()
         )
     }
@@ -86,31 +74,24 @@ class WktToPostgresGeometry<R : ConnectRecord<R>?> : Transformation<R> {
         valueSchema: Schema,
         overwriteValue: ByteArray,
         value: Struct
-    ): Struct {
-        val newStruct = Struct(newSchema)
-        for (f in valueSchema.fields()) {
-            val name = f.name()
-            if (name == field) {
-                newStruct.put(name, overwriteValue)
-            } else {
-                newStruct.put(name, value.get(name))
+    ): Struct =
+        Struct(newSchema)
+            .also {
+                valueSchema.fields().forEach { f ->
+                    val name = f.name()
+                    val v = if (name == field) overwriteValue else value.get(name)
+                    it.put(name, v)
+                }
             }
-        }
-        return newStruct
-    }
 
+    private fun convertWktToPostgresGeometry(wkt: String, srid: Int): ByteArray =
+        wktReader.read(wkt)
+            .also { it.srid = srid }
+            .let { wkbWriter.write(it) }
 
-    private fun convertWktToPostgresGeometry(wkt: String, srid: Int): ByteArray {
-        val geometry = wktReader.read(wkt)
-        geometry.srid = srid
-        return wkbWriter.write(geometry)
-    }
+    override fun config(): ConfigDef = CONFIG_DEF
 
-    override fun config(): ConfigDef {
-        return CONFIG_DEF
-    }
-
-    override fun close() {}
+    override fun close() = Unit
 
     companion object {
         const val OVERVIEW_DOC = "Convert WKT geometry to PostgreSQL geometry format with SRID."
@@ -125,9 +106,9 @@ class WktToPostgresGeometry<R : ConnectRecord<R>?> : Transformation<R> {
             .define(
                 SRID,
                 ConfigDef.Type.INT,
-                4326,
+                0,
                 ConfigDef.Importance.MEDIUM,
-                "Spatial Reference System Identifier (default: 4326 for WGS84)"
+                "Spatial Reference System Identifier (default: 0)"
             )
     }
 }

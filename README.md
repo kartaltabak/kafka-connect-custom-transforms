@@ -4,15 +4,16 @@ This repository contains custom Kafka Connect transformations
 that can be used to modify Kafka records. 
 The available transformations include:
 
-- `AppendProcessingTime`
-- `LowercaseFieldNames`
-- `RemoveNullCharacters`
-- `ReplaceRegexValue`
-- `TableToLowerCase`
-- `TableToUpperCase`
-- `UppercaseFieldNames`
-- `RenameFieldNamesRegEx`
--  `TimeShift`
+* `AppendProcessingTime`
+* `LowercaseFieldNames`
+* `RemoveNullCharacters`
+* `ReplaceRegexValue`
+* `TableToLowerCase`
+* `TableToUpperCase`
+* `UppercaseFieldNames`
+* `RenameFieldNamesRegEx`
+*  `TimeShift`
+* `WktToPostgresGeometry`
 
 
 ## Transformations
@@ -173,6 +174,24 @@ Shifts the date and time of a specified field by a given number of hours. This t
 "transforms.TimeShift.hours": 5
 ```        
         
+### WktToPostgresGeometry
+
+Converts a WKT string field to PostGIS-compatible WKB binary for PostgreSQL geometry columns.
+
+#### Configuration
+
+* `field`: The name of the WKT field to convert.
+* `srid` (default: `0`): The spatial reference ID (e.g., 4326 or 0). 
+
+#### Example
+
+```json
+"transforms": "WKT",
+"transforms.WKT.type": "name.ekt.kafka.connect.transform.WktToPostgresGeometry",
+"transforms.WKT.field": "shape",
+"transforms.WKT.srid": "4326"
+```
+
 ## Usage
 
 To use the custom transformations in your Kafka Connect setup, follow these steps:

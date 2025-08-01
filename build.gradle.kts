@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "name.tabak.kafka.connect"
-version = "1.6-pre1"
+version = "1.6"
 
 repositories {
     mavenCentral()
