@@ -15,6 +15,9 @@ repositories {
     maven {
         url = uri("https://packages.confluent.io/maven/")
     }
+    maven {
+        url = uri("https://repo.osgeo.org/repository/release/")
+    }
 }
 
 val kafkaConnectVersion = "7.5.3-ccs"
@@ -23,6 +26,8 @@ val junitVersion = "5.10.2"
 dependencies {
     implementation("org.apache.kafka:connect-transforms:$kafkaConnectVersion")
     implementation("org.slf4j:slf4j-api:2.0.12")
+    implementation("org.locationtech.jts:jts-core:1.19.0")
+    
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
