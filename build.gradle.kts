@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "name.tabak.kafka.connect"
-version = "1.5"
+version = "1.6"
 
 repositories {
     mavenCentral()
@@ -22,11 +22,13 @@ repositories {
 
 val kafkaConnectVersion = "7.5.3-ccs"
 val junitVersion = "5.10.2"
+val slf4jVersion = "2.0.12"
+val jtsCoreVersion = "1.20.0"
 
 dependencies {
     implementation("org.apache.kafka:connect-transforms:$kafkaConnectVersion")
-    implementation("org.slf4j:slf4j-api:2.0.12")
-    implementation("org.locationtech.jts:jts-core:1.19.0")
+    implementation("org.slf4j:slf4j-api:$slf4jVersion")
+    implementation("org.locationtech.jts:jts-core:$jtsCoreVersion")
     
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
