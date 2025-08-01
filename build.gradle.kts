@@ -66,12 +66,8 @@ tasks.register<Zip>("distWithDeps") {
     archiveClassifier.set("with-deps")
     destinationDirectory.set(layout.buildDirectory.dir("distributions"))
 
-    from(tasks.named("jar")) {
-        into("lib")
-    }
-    from(configurations.runtimeClasspath.get()) {
-        into("lib")
-    }
+    from(tasks.named("jar"))
+    from(configurations.runtimeClasspath.get())
 }
 
 tasks.test {

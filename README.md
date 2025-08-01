@@ -199,9 +199,10 @@ To use the custom transformations in your Kafka Connect setup, follow these step
    1. **Download the Artifact**: Download the latest release of the artifact JAR from 
 [Releases](https://github.com/kartaltabak/kafka-connect-custom-transforms/releases).
 
-   2. **Copy the JAR**: Copy the downloaded JAR file into your Kafka Connect plugins directory. 
+   2. **Unzip the ZIP**: Copy the downloaded ZIP file and unzip it into your Kafka Connect plugins directory. 
 This directory is typically located at `/usr/share/java`, `/usr/local/share/java`,  
 `/app/confluent/connect/plugins`, or a similar path, depending on your installation.
+    The unzipped directory should contain the necessary JAR files for the transformations. 
 
    3. **Restart Kafka Connect**: Restart the Kafka Connect service to load the new transformations. 
 You can restart the service using a command like `sudo systemctl restart confluent-kafka-connect`
