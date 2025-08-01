@@ -68,6 +68,12 @@ tasks.register<Zip>("distWithDeps") {
 
     from(tasks.named("jar"))
     from(configurations.runtimeClasspath.get())
+    from("EPL-v2.txt") {
+        into("licenses")
+    }
+    from("LICENSE") {
+        into("licenses")
+    }
 }
 
 tasks.test {

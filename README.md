@@ -260,4 +260,7 @@ For code contributions, create a pull request with your changes.
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details. 
+This project is licensed under the MIT License. See the LICENSE file for details.
+
+This plugin includes jts-core (Java Topology Suite) from the LocationTech project,
+licensed under the Eclipse Public License 2.0.
