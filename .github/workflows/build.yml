@@ -25,8 +25,15 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
 
-      - name: Create JAR artifact
+      - name: Build distribution ZIP with dependencies
+        run: ./gradlew distWithDeps
+
+      - name: Run tests and generate coverage report
+        run: ./gradlew test
+
+      - name: Upload distribution ZIP
         uses: actions/upload-artifact@v4
         with:
-          name: kafka-connect-custom-transforms
-          path: build/libs/*.jar
+          name: kafka-connect-custom-transforms-dist
+          path: build/distributions/*.zip
+

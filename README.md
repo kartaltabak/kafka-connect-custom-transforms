@@ -4,15 +4,16 @@ This repository contains custom Kafka Connect transformations
 that can be used to modify Kafka records. 
 The available transformations include:
 
-- `AppendProcessingTime`
-- `LowercaseFieldNames`
-- `RemoveNullCharacters`
-- `ReplaceRegexValue`
-- `TableToLowerCase`
-- `TableToUpperCase`
-- `UppercaseFieldNames`
-- `RenameFieldNamesRegEx`
--  `TimeShift`
+* `AppendProcessingTime`
+* `LowercaseFieldNames`
+* `RemoveNullCharacters`
+* `ReplaceRegexValue`
+* `TableToLowerCase`
+* `TableToUpperCase`
+* `UppercaseFieldNames`
+* `RenameFieldNamesRegEx`
+*  `TimeShift`
+* `WktToPostgresGeometry`
 
 
 ## Transformations
@@ -173,6 +174,24 @@ Shifts the date and time of a specified field by a given number of hours. This t
 "transforms.TimeShift.hours": 5
 ```        
         
+### WktToPostgresGeometry
+
+Converts a WKT string field to PostGIS-compatible WKB binary for PostgreSQL geometry columns.
+
+#### Configuration
+
+* `field`: The name of the WKT field to convert.
+* `srid` (default: `0`): The spatial reference ID (e.g., 4326 or 0). 
+
+#### Example
+
+```json
+"transforms": "WKT",
+"transforms.WKT.type": "name.ekt.kafka.connect.transform.WktToPostgresGeometry",
+"transforms.WKT.field": "shape",
+"transforms.WKT.srid": "4326"
+```
+
 ## Usage
 
 To use the custom transformations in your Kafka Connect setup, follow these steps:
@@ -180,9 +199,10 @@ To use the custom transformations in your Kafka Connect setup, follow these step
    1. **Download the Artifact**: Download the latest release of the artifact JAR from 
 [Releases](https://github.com/kartaltabak/kafka-connect-custom-transforms/releases).
 
-   2. **Copy the JAR**: Copy the downloaded JAR file into your Kafka Connect plugins directory. 
+   2. **Unzip the ZIP**: Copy the downloaded ZIP file and unzip it into your Kafka Connect plugins directory. 
 This directory is typically located at `/usr/share/java`, `/usr/local/share/java`,  
 `/app/confluent/connect/plugins`, or a similar path, depending on your installation.
+    The unzipped directory should contain the necessary JAR files for the transformations. 
 
    3. **Restart Kafka Connect**: Restart the Kafka Connect service to load the new transformations. 
 You can restart the service using a command like `sudo systemctl restart confluent-kafka-connect`
