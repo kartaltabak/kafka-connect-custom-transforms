@@ -28,7 +28,8 @@ dependencies {
     compileOnly("org.apache.kafka:connect-transforms:$kafkaConnectVersion")
     compileOnly("org.slf4j:slf4j-api:$slf4jVersion")
     implementation("org.locationtech.jts:jts-core:$jtsCoreVersion")
-    
+
+    testImplementation("org.apache.kafka:connect-transforms:${kafkaConnectVersion}")
     testImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
