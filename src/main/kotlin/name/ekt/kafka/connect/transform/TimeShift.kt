@@ -18,8 +18,7 @@ class TimeShift<R : ConnectRecord<R>> : Transformation<R> {
         const val HOURS_CONFIG = "hours"
 
         val CONFIG_DEF: ConfigDef =
-            ConfigDef()
-                .define(FIELD_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, "The field to shift.")
+            ConfigDef().define(FIELD_CONFIG, ConfigDef.Type.STRING, ConfigDef.Importance.HIGH, "The field to shift.")
                 .define(HOURS_CONFIG, ConfigDef.Type.LONG, ConfigDef.Importance.HIGH, "Number of hours to shift.")
     }
 

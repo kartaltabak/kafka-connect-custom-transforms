@@ -3,6 +3,7 @@ package name.ekt.kafka.connect.transform
 import org.apache.kafka.common.config.ConfigDef
 import org.apache.kafka.connect.connector.ConnectRecord
 import org.apache.kafka.connect.transforms.util.SimpleConfig
+import java.util.Locale.ENGLISH
 import java.util.regex.Pattern
 
 class RenameFieldNamesRegEx<R : ConnectRecord<R>>
@@ -14,6 +15,7 @@ class RenameFieldNamesRegEx<R : ConnectRecord<R>>
         }
     }
 
+    private lateinit var field: String
     private lateinit var replacement: String
     private lateinit var regexPattern: Pattern
     override fun configure(configs: Map<String, *>?) {

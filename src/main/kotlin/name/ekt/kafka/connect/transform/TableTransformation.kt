@@ -4,6 +4,7 @@ import org.apache.kafka.common.config.ConfigDef
 import org.apache.kafka.connect.connector.ConnectRecord
 import org.apache.kafka.connect.transforms.Transformation
 import org.slf4j.LoggerFactory
+import java.util.Locale.ENGLISH
 
 abstract class TableTransformation<R : ConnectRecord<R>?>(
     private val transformFunc: (String) -> String
