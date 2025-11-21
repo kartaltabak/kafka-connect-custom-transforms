@@ -5,14 +5,15 @@ that can be used to modify Kafka records.
 The available transformations include:
 
 * `AppendProcessingTime`
+* `CopyField`
 * `LowercaseFieldNames`
 * `RemoveNullCharacters`
+* `RenameFieldNamesRegEx`
 * `ReplaceRegexValue`
 * `TableToLowerCase`
 * `TableToUpperCase`
+* `TimeShift`
 * `UppercaseFieldNames`
-* `RenameFieldNamesRegEx`
-*  `TimeShift`
 * `WktToPostgresGeometry`
 
 
@@ -37,6 +38,29 @@ It appends a new field to the record's value schema, which contains the timestam
 "transforms.AppendProcessingTime.type": "name.ekt.kafka.connect.transform.AppendProcessingTime",
 "transforms.AppendProcessingTime.field": "processing_time",
 "transforms.AppendProcessingTime.is_optional": true
+```
+
+### CopyField
+
+Copies a field value to a new field in the record. 
+This transformation is useful when you need to duplicate 
+a field for backup purposes, 
+create a derivative field, 
+or prepare data for further transformations.
+The target field will inherit the same schema type as the source field.
+
+#### Configuration
+
+- `source.field`: The name of the source field to copy from.
+- `target.field`: The name of the target field to create.
+
+#### Example
+
+```json
+"transforms": "CopyField",
+"transforms.CopyField.type": "name.ekt.kafka.connect.transform.CopyField",
+"transforms.CopyField.source.field": "user_id",
+"transforms.CopyField.target.field": "user_id_backup"
 ```
 
 ### LowercaseFieldNames
@@ -69,19 +93,44 @@ which can cause issues in downstream processing or storage systems.
 "transforms.RemoveNullCharacters.type": "name.ekt.kafka.connect.transform.RemoveNullCharacters"
 ```
 
+### RenameFieldNamesRegEx
+
+Transforms field names in Kafka Connect records by applying a regular expression pattern
+and replacing matching parts of the field names with a specified replacement string.
+This transformation is useful for renaming fields to follow specific conventions
+or to remove unwanted characters.
+
+#### Configuration
+
+- `regex`: The regular expression to be applied to field names.
+- `replacement`: The string to replace the regex matches with.
+
+#### Example
+
+```json
+"transforms": "RenameFieldNamesRegEx",
+"transforms.RenameFieldNamesRegEx.type": "name.ekt.kafka.connect.transform.RenameFieldNamesRegEx",
+"transforms.RenameFieldNamesRegEx.regex": "\\",
+"transforms.RenameFieldNamesRegEx.replacement": "_"
+```
+
 ### ReplaceRegexValue
 
-Replaces values in Kafka Connect records using a regular expression. This transformation allows for flexible 
-text manipulation within specific fields of the records, based on regular expression matching and replacement.
+Replaces values in Kafka Connect records using a regular expression. 
+This transformation allows for flexible text manipulation within specific 
+fields of the records, based on regular expression matching and replacement.
+**Supports capture groups** using `$1`, `$2`, `$3`, etc., 
+allowing you to extract and reorder parts of matched text.
 
 #### Configuration
 
 - `field`: The field to apply the replacement.
-- `regex`: The regular expression pattern to replace.
-- `replacement`: The replacement value.
+- `regex`: The regular expression pattern to replace. Can include capture groups using parentheses `()`.
+- `replacement`: The replacement value. Can reference capture groups using `$1`, `$2`, `$3`, etc.
 
-#### Example
+#### Examples
 
+**Simple replacement:**
 ```json
 "transforms": "ReplaceRegexValue",
 "transforms.ReplaceRegexValue.type": "name.ekt.kafka.connect.transform.ReplaceRegexValue",
@@ -89,6 +138,16 @@ text manipulation within specific fields of the records, based on regular expres
 "transforms.ReplaceRegexValue.regex": "\\s+",
 "transforms.ReplaceRegexValue.replacement": "_"
 ```
+
+**Using capture groups to extract domain from email:**
+```json
+"transforms": "ExtractDomain",
+"transforms.ExtractDomain.type": "name.ekt.kafka.connect.transform.ReplaceRegexValue",
+"transforms.ExtractDomain.field": "email",
+"transforms.ExtractDomain.regex": ".*@(.*)",
+"transforms.ExtractDomain.replacement": "$1"
+```
+Input: `user@example.com` → Output: `example.com`
 
 ### TableToLowerCase
 
@@ -118,44 +177,6 @@ that require or expect uppercase topic names.
 "transforms.TableToUpperCase.type": "name.ekt.kafka.connect.transform.TableToUpperCase"
 ```
 
-### UppercaseFieldNames
-
-Transforms all field names in the record's value to uppercase. 
-This transformation ensures that all field names within a record are converted to uppercase, 
-which can be useful for maintaining a consistent naming convention across different data sources and sinks.
-
-This transformation is particularly useful in scenarios where 
-integrating non-case-sensitive systems with case-sensitive systems can cause issues 
-due to discrepancies in field name casing.
-
-#### Example
-
-```json
-"transforms": "UppercaseFieldNames",
-"transforms.UppercaseFieldNames.type": "name.ekt.kafka.connect.transform.UppercaseFieldNames"
-```
-
-### RenameFieldNamesRegEx
-
-Transforms field names in Kafka Connect records by applying a regular expression pattern 
-and replacing matching parts of the field names with a specified replacement string. 
-This transformation is useful for renaming fields to follow specific conventions 
-or to remove unwanted characters.
-
-#### Configuration
-
-- `regex`: The regular expression to be applied to field names.
-- `replacement`: The string to replace the regex matches with.
-
-#### Example
-
-```json
-"transforms": "RenameFieldNamesRegEx",
-"transforms.RenameFieldNamesRegEx.type": "name.ekt.kafka.connect.transform.RenameFieldNamesRegEx",
-"transforms.RenameFieldNamesRegEx.regex": "\\",
-"transforms.RenameFieldNamesRegEx.replacement": "_"
-```
-
 ### TimeShift
 
 Shifts the date and time of a specified field by a given number of hours. This transformation is useful when you need to adjust the time zone or apply a time offset to a date field in your Kafka records.
@@ -173,7 +194,24 @@ Shifts the date and time of a specified field by a given number of hours. This t
 "transforms.TimeShift.field": "myDateField",
 "transforms.TimeShift.hours": 5
 ```        
-        
+
+### UppercaseFieldNames
+
+Transforms all field names in the record's value to uppercase. 
+This transformation ensures that all field names within a record are converted to uppercase, 
+which can be useful for maintaining a consistent naming convention across different data sources and sinks.
+
+This transformation is particularly useful in scenarios where 
+integrating non-case-sensitive systems with case-sensitive systems can cause issues 
+due to discrepancies in field name casing.
+
+#### Example
+
+```json
+"transforms": "UppercaseFieldNames",
+"transforms.UppercaseFieldNames.type": "name.ekt.kafka.connect.transform.UppercaseFieldNames"
+```
+
 ### WktToPostgresGeometry
 
 Converts a WKT string field to PostGIS-compatible WKB binary for PostgreSQL geometry columns.
