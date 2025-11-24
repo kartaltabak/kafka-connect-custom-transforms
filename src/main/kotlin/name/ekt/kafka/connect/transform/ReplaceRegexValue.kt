@@ -50,11 +50,9 @@ class ReplaceRegexValue<R : ConnectRecord<R>?> : Transformation<R> {
         )
     }
 
-    override fun config(): ConfigDef {
-        return CONFIG_DEF
-    }
+    override fun config(): ConfigDef = CONFIG_DEF
 
-    override fun close() {}
+    override fun close() = Unit
 
     companion object {
         const val OVERVIEW_DOC = "Replace values in Kafka Connect records."

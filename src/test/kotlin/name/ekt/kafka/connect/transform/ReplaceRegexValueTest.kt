@@ -71,4 +71,106 @@ class ReplaceRegexValueTest {
         assertEquals("foo/is here", transformedValue["message"])
         transform.close()
     }
+
+    @Test
+    fun `should support capture groups with simple pattern`() {
+        ReplaceRegexValue<SourceRecord>()
+            .also {
+                it.configure(
+                    mapOf(
+                        "field" to "email",
+                        "regex" to "(.*)@(.*)",
+                        "replacement" to "user:\$1,domain:\$2"
+                    )
+                )
+            }
+            .use { transform ->
+                val schema = SchemaBuilder.struct().name("User")
+                    .field("id", INT32_SCHEMA)
+                    .field("email", STRING_SCHEMA)
+                    .build()
+                val value = Struct(schema)
+                    .put("id", 1)
+                    .put("email", "john.doe@example.com")
+                val record = SourceRecord(
+                    null,
+                    null,
+                    "users",
+                    0,
+                    schema,
+                    value
+                )
+                val transformedRecord = transform.apply(record)
+                val transformedValue = transformedRecord.value() as Struct
+                assertEquals("user:john.doe,domain:example.com", transformedValue["email"])
+            }
+    }
+
+    @Test
+    fun `should support capture groups with reordering`() {
+        ReplaceRegexValue<SourceRecord>()
+            .also {
+                it.configure(
+                    mapOf(
+                        "field" to "code",
+                        "regex" to "(.*)_(.*)_(.*)",
+                        "replacement" to "\$3>\$2_\$1"
+                    )
+                )
+            }
+            .use { transform ->
+                val schema = SchemaBuilder.struct().name("Entity")
+                    .field("id", INT32_SCHEMA)
+                    .field("code", STRING_SCHEMA)
+                    .build()
+                val value = Struct(schema)
+                    .put("id", 10)
+                    .put("code", "abc_123_def")
+                val record = SourceRecord(
+                    null,
+                    null,
+                    "my_topic",
+                    0,
+                    schema,
+                    value
+                )
+                val transformedRecord = transform.apply(record)
+                val transformedValue = transformedRecord.value() as Struct
+                assertEquals("def>123_abc", transformedValue["code"])
+            }
+    }
+
+    @Test
+    fun `should support capture groups with partial replacement`() {
+        ReplaceRegexValue<SourceRecord>()
+            .also {
+                it.configure(
+                    mapOf(
+                        "field" to "filename",
+                        "regex" to "^(\\d{4}-\\d{2}-\\d{2})_(.*)\\.txt\$",
+                        "replacement" to "[\$1] \$2.log"
+                    )
+                )
+            }
+            .use { transform ->
+                val schema = SchemaBuilder.struct().name("File")
+                    .field("id", INT32_SCHEMA)
+                    .field("filename", STRING_SCHEMA)
+                    .build()
+                val value = Struct(schema)
+                    .put("id", 1)
+                    .put("filename", "2024-03-15_report.txt")
+                val record = SourceRecord(
+                    null,
+                    null,
+                    "files",
+                    0,
+                    schema,
+                    value
+                )
+                val transformedRecord = transform.apply(record)
+                val transformedValue = transformedRecord.value() as Struct
+                assertEquals("[2024-03-15] report.log", transformedValue["filename"])
+            }
+    }
 }
