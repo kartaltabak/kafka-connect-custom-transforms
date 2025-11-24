@@ -1,8 +1,9 @@
 # Kafka Connect Custom Transforms
 
-This repository contains custom Kafka Connect transformations 
-that can be used to modify Kafka records. 
-The available transformations include:
+This repository contains custom Kafka Connect transformations and predicates 
+that can be used to modify and filter Kafka records. 
+
+## Available Transformations
 
 * `AppendProcessingTime`
 * `CopyField`
@@ -15,6 +16,10 @@ The available transformations include:
 * `TimeShift`
 * `UppercaseFieldNames`
 * `WktToPostgresGeometry`
+
+## Available Predicates
+
+* `ValueTypeIsInstance` - Check if the record value is an instance of a specific type
 
 
 ## Transformations
@@ -228,6 +233,73 @@ Converts a WKT string field to PostGIS-compatible WKB binary for PostgreSQL geom
 "transforms.WKT.type": "name.ekt.kafka.connect.transform.WktToPostgresGeometry",
 "transforms.WKT.field": "shape",
 "transforms.WKT.srid": "4326"
+```
+
+## Predicates
+
+Predicates are used to conditionally apply transformations based on certain conditions. 
+They can be combined with any transformation to filter which records the transformation applies to.
+
+### ValueTypeIsInstance
+
+A predicate that checks if the record value is an instance of a specific type using reflection. 
+This is useful for conditionally applying transformations only to records with specific data types, 
+such as applying a transformation only to structured messages (Struct) and skipping raw byte arrays.
+
+The predicate uses `Class.forName()` to load the target type and `isInstance()` to check if the 
+record value is an instance of that type. This provides flexibility to check against any Java/Kotlin 
+class without being limited to predefined types.
+
+#### Configuration
+
+- `class.name` (required): The fully qualified class name to check for. Examples:
+  - `org.apache.kafka.connect.data.Struct` - Kafka Connect Struct type
+  - `java.lang.String` - String type
+  - `java.util.Map` - Map type
+  - `java.util.List` - List type
+  - `java.lang.Integer` - Integer type
+  - `java.lang.Long` - Long type
+  - `java.lang.Float` - Float type
+  - `java.lang.Double` - Double type
+  - `java.lang.Boolean` - Boolean type
+  - `[B` - Byte array (byte[])
+
+#### Example: Apply transformation only to Struct messages
+
+```json
+"predicates": "isStruct",
+"predicates.isStruct.type": "name.ekt.kafka.connect.predicate.ValueTypeIsInstance",
+"predicates.isStruct.class.name": "org.apache.kafka.connect.data.Struct",
+"transforms": "LowercaseFieldNames",
+"transforms.LowercaseFieldNames.type": "name.ekt.kafka.connect.transform.LowercaseFieldNames",
+"transforms.LowercaseFieldNames.predicate": "isStruct"
+```
+
+#### Example: Apply transformation only to byte array messages
+
+```json
+"predicates": "isByteArray",
+"predicates.isByteArray.type": "name.ekt.kafka.connect.predicate.ValueTypeIsInstance",
+"predicates.isByteArray.class.name": "[B",
+"transforms": "myTransform",
+"transforms.myTransform.type": "...",
+"transforms.myTransform.predicate": "isByteArray"
+```
+
+#### Example: Check for String values
+
+```json
+"predicates": "isString",
+"predicates.isString.type": "name.ekt.kafka.connect.predicate.ValueTypeIsInstance",
+"predicates.isString.class.name": "java.lang.String"
+```
+
+#### Example: Check for custom types
+
+```json
+"predicates": "isMyCustomType",
+"predicates.isMyCustomType.type": "name.ekt.kafka.connect.predicate.ValueTypeIsInstance",
+"predicates.isMyCustomType.class.name": "com.example.MyCustomClass"
 ```
 
 ## Usage
