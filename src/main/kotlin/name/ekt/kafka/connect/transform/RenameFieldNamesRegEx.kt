@@ -29,7 +29,7 @@ class RenameFieldNamesRegEx<R : ConnectRecord<R>>
 
     companion object {
         const val OVERVIEW_DOC = "Renames fields in Kafka Connect records."
-        val CONFIG_DEF = ConfigDef()
+        val CONFIG_DEF: ConfigDef = ConfigDef()
             .define(
                 ConfigName.REGEX,
                 ConfigDef.Type.STRING,

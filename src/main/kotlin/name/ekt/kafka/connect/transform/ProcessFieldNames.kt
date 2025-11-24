@@ -10,26 +10,31 @@ import org.apache.kafka.connect.transforms.Transformation
 abstract class ProcessFieldNames<R : ConnectRecord<R>> : Transformation<R> {
     override fun apply(record: R?): R? =
         record?.let {
-            val newKeySchema = makeLowercaseSchema(it.keySchema())
-            val newValueSchema = makeLowercaseSchema(it.valueSchema())
+            val newKeySchema = transformSchema(it.keySchema())
+            val newValueSchema = transformSchema(it.valueSchema())
             val newKey = transformStruct(it.key(), newKeySchema)
             val newValue = transformStruct(it.value(), newValueSchema)
             it.newRecord(
-                it.topic(), it.kafkaPartition(),
-                newKeySchema, newKey,
-                newValueSchema, newValue,
+                it.topic(),
+                it.kafkaPartition(),
+                newKeySchema,
+                newKey,
+                newValueSchema,
+                newValue,
                 it.timestamp()
             )
         }
 
-    private fun makeLowercaseSchema(schema: Schema?): Schema? =
+    private fun transformSchema(schema: Schema?): Schema? =
         schema?.let {
-            SchemaBuilder.struct()
+            SchemaBuilder
+                .struct()
                 .also {
                     schema.fields().forEach { field ->
                         it.field(transformFieldName(field.name()), field.schema())
                     }
-                }.build()
+                }
+                .build()
         }
 
     private fun transformStruct(data: Any, newSchema: Schema?): Any =

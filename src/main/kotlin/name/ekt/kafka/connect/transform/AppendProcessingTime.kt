@@ -24,7 +24,7 @@ class AppendProcessingTime<R : ConnectRecord<R>>
         }
     }
 
-    val CONFIG_DEF = ConfigDef()
+    val CONFIG_DEF: ConfigDef = ConfigDef()
         .define(
             ConfigName.FIELD_NAME,
             STRING,

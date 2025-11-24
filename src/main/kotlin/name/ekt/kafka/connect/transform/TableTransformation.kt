@@ -17,6 +17,7 @@ abstract class TableTransformation<R : ConnectRecord<R>?>(
                 log.trace("Not rerouting topic '{}' as original and rerouted ones are the same", record.topic())
                 record
             }
+
             else -> {
                 log.trace("Rerouting from topic '{}' to new topic '{}'", record.topic(), topic)
                 record.newRecord(
