@@ -20,6 +20,7 @@ that can be used to modify and filter Kafka records.
 ## Available Predicates
 
 * `ValueTypeIsInstance` - Check if the record value is an instance of a specific type
+* `ValueTypeIsNotInstance` - Check if the record value is NOT an instance of a specific type (negated version)
 
 
 ## Transformations
@@ -300,6 +301,47 @@ class without being limited to predefined types.
 "predicates": "isMyCustomType",
 "predicates.isMyCustomType.type": "name.ekt.kafka.connect.predicate.ValueTypeIsInstance",
 "predicates.isMyCustomType.class.name": "com.example.MyCustomClass"
+```
+
+### ValueTypeIsNotInstance
+
+A negated version of `ValueTypeIsInstance` that checks if the record value is NOT an instance of a specific type. 
+This predicate returns `true` when the value is not an instance of the specified class, or when the value is `null`.
+
+This is useful for filtering out specific types or applying transformations to all records except those of a specific type.
+
+#### Configuration
+
+- `class.name` (required): The fully qualified class name to check against. Same class names as `ValueTypeIsInstance`.
+
+#### Example: Apply transformation to non-Struct messages
+
+```json
+"predicates": "isNotStruct",
+"predicates.isNotStruct.type": "name.ekt.kafka.connect.predicate.ValueTypeIsNotInstance",
+"predicates.isNotStruct.class.name": "org.apache.kafka.connect.data.Struct",
+"transforms": "myTransform",
+"transforms.myTransform.type": "...",
+"transforms.myTransform.predicate": "isNotStruct"
+```
+
+#### Example: Skip byte array messages
+
+```json
+"predicates": "isNotByteArray",
+"predicates.isNotByteArray.type": "name.ekt.kafka.connect.predicate.ValueTypeIsNotInstance",
+"predicates.isNotByteArray.class.name": "[B",
+"transforms": "processRecords",
+"transforms.processRecords.type": "...",
+"transforms.processRecords.predicate": "isNotByteArray"
+```
+
+#### Example: Process all non-String values
+
+```json
+"predicates": "isNotString",
+"predicates.isNotString.type": "name.ekt.kafka.connect.predicate.ValueTypeIsNotInstance",
+"predicates.isNotString.class.name": "java.lang.String"
 ```
 
 ## Usage
