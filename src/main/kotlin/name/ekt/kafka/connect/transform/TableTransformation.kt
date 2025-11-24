@@ -4,7 +4,6 @@ import org.apache.kafka.common.config.ConfigDef
 import org.apache.kafka.connect.connector.ConnectRecord
 import org.apache.kafka.connect.transforms.Transformation
 import org.slf4j.LoggerFactory
-import java.util.Locale.ENGLISH
 
 abstract class TableTransformation<R : ConnectRecord<R>?>(
     private val transformFunc: (String) -> String
@@ -18,6 +17,7 @@ abstract class TableTransformation<R : ConnectRecord<R>?>(
                 log.trace("Not rerouting topic '{}' as original and rerouted ones are the same", record.topic())
                 record
             }
+
             else -> {
                 log.trace("Rerouting from topic '{}' to new topic '{}'", record.topic(), topic)
                 record.newRecord(

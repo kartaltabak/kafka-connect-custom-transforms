@@ -95,7 +95,7 @@ class WktToPostgresGeometry<R : ConnectRecord<R>?> : Transformation<R> {
 
     companion object {
         const val OVERVIEW_DOC = "Convert WKT geometry to PostgreSQL geometry format with SRID."
-        val CONFIG_DEF = ConfigDef()
+        val CONFIG_DEF: ConfigDef = ConfigDef()
             .define(
                 FIELD,
                 ConfigDef.Type.STRING,

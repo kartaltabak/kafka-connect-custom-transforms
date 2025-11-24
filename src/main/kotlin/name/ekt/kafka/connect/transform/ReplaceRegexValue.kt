@@ -58,7 +58,7 @@ class ReplaceRegexValue<R : ConnectRecord<R>?> : Transformation<R> {
 
     companion object {
         const val OVERVIEW_DOC = "Replace values in Kafka Connect records."
-        val CONFIG_DEF = ConfigDef()
+        val CONFIG_DEF: ConfigDef = ConfigDef()
             .define(
                 FIELD,
                 ConfigDef.Type.STRING,
